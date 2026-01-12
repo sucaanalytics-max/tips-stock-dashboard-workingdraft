@@ -1,0 +1,12 @@
+{
+  "name": "tips-music-analytics-dashboard",
+  "version": "1.0.0",
+  "description": "Interactive analytics dashboard for Tips Music YouTube metrics vs stock price",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve ."
+  },
+  "keywords": ["tips-music", "analytics", "youtube", "stock-price"],
+  "author": "",
+  "license": "MIT"
+}
