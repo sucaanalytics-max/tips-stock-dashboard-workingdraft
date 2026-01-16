@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tips Music Analytics Dashboard</title>
+    <title>Tips Music - YouTube Analytics Dashboard</title>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     <style>
         * {
@@ -13,7 +13,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
@@ -24,7 +24,7 @@
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
         }
 
@@ -38,7 +38,7 @@
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .header p {
@@ -49,29 +49,31 @@
         .controls {
             background: #f8f9fa;
             padding: 25px;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
         }
 
         .control-group {
             display: flex;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
+            flex-direction: column;
+            gap: 5px;
         }
 
         .control-group label {
             font-weight: 600;
-            color: #333;
-            min-width: 100px;
+            color: #495057;
+            font-size: 0.9em;
         }
 
         select, input[type="date"], button {
             padding: 10px 15px;
-            border: 2px solid #ddd;
+            border: 2px solid #dee2e6;
             border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s;
+            font-size: 1em;
+            transition: all 0.3s ease;
         }
 
         select:focus, input[type="date"]:focus {
@@ -98,7 +100,7 @@
             transform: translateY(0);
         }
 
-        .stats-grid {
+        .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
@@ -110,18 +112,17 @@
             background: white;
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
-            border-left: 4px solid #667eea;
-            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
         }
 
         .stat-card h3 {
-            color: #666;
+            color: #6c757d;
             font-size: 0.9em;
             margin-bottom: 10px;
             text-transform: uppercase;
@@ -132,19 +133,15 @@
             font-size: 2em;
             font-weight: bold;
             color: #1e3c72;
-            margin-bottom: 5px;
         }
 
-        .stat-card .change {
+        .stat-card .subtext {
             font-size: 0.85em;
-            color: #28a745;
+            color: #6c757d;
+            margin-top: 5px;
         }
 
-        .stat-card .change.negative {
-            color: #dc3545;
-        }
-
-        .charts-section {
+        .charts {
             padding: 25px;
         }
 
@@ -153,7 +150,7 @@
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .chart-header {
@@ -167,68 +164,44 @@
 
         .chart-header h2 {
             color: #1e3c72;
-            font-size: 1.5em;
+            font-size: 1.4em;
         }
 
         .chart-options {
             display: flex;
             gap: 10px;
-            align-items: center;
+            flex-wrap: wrap;
         }
 
-        .toggle-group {
+        .btn-group {
             display: flex;
-            background: #f0f0f0;
+            gap: 5px;
+            background: #e9ecef;
+            padding: 4px;
             border-radius: 8px;
-            padding: 3px;
         }
 
-        .toggle-btn {
-            padding: 8px 16px;
-            border: none;
+        .btn-group button {
+            padding: 8px 15px;
+            font-size: 0.85em;
             background: transparent;
-            cursor: pointer;
-            border-radius: 6px;
-            font-size: 13px;
-            transition: all 0.3s;
-            color: #666;
+            color: #495057;
+            border: none;
         }
 
-        .toggle-btn.active {
+        .btn-group button.active {
             background: white;
             color: #667eea;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f0f0f0;
-            padding: 8px 12px;
-            border-radius: 8px;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .checkbox-group label {
-            cursor: pointer;
-            font-size: 13px;
-            color: #666;
-            user-select: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .table-container {
             background: white;
             border-radius: 12px;
             padding: 20px;
-            margin-top: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
         }
 
         table {
@@ -244,7 +217,7 @@
         th, td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #dee2e6;
         }
 
         th {
@@ -254,79 +227,93 @@
             letter-spacing: 0.5px;
         }
 
-        tbody tr:hover {
+        tr:hover {
             background: #f8f9fa;
+        }
+
+        .positive {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .negative {
+            color: #dc3545;
+            font-weight: 600;
         }
 
         .pagination {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px solid #e0e0e0;
+            margin-top: 15px;
+            padding: 10px 0;
         }
 
         .pagination button {
-            padding: 8px 16px;
-            font-size: 13px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-            font-size: 1.1em;
+            padding: 8px 15px;
+            font-size: 0.9em;
         }
 
         .footer {
             background: #1e3c72;
             color: white;
-            text-align: center;
             padding: 20px;
-            font-size: 0.9em;
+            text-align: center;
         }
 
-        .error {
-            background: #fee;
-            border: 2px solid #fcc;
-            color: #c33;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px;
+        .footer p {
+            margin: 5px 0;
+            opacity: 0.9;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
-            .control-group {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
                 flex-direction: column;
                 align-items: stretch;
             }
 
             .chart-header {
                 flex-direction: column;
-                align-items: stretch;
+                align-items: flex-start;
             }
 
-            .chart-options {
-                flex-direction: column;
-            }
-
-            .header h1 {
-                font-size: 1.8em;
+            .stats {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
-            <h1>📊 Tips Music Analytics Dashboard</h1>
-            <p>YouTube Performance vs Stock Price Analysis</p>
+            <h1>📊 Tips Music - YouTube Analytics Dashboard</h1>
+            <p>Real-time correlation between YouTube performance and NSE stock price</p>
         </div>
 
+        <!-- Controls -->
         <div class="controls">
             <div class="control-group">
-                <label>⏱️ Time Period</label>
+                <label for="timePeriod">Time Period</label>
                 <select id="timePeriod">
                     <option value="30">Last 30 Days</option>
                     <option value="90">Last 90 Days</option>
@@ -336,54 +323,57 @@
                 </select>
             </div>
             <div class="control-group">
-                <label>📅 From Date</label>
+                <label for="fromDate">From Date</label>
                 <input type="date" id="fromDate">
-                <label>To Date</label>
-                <input type="date" id="toDate">
-                <button onclick="refreshData()">🔄 Refresh Data</button>
             </div>
+            <div class="control-group">
+                <label for="toDate">To Date</label>
+                <input type="date" id="toDate">
+            </div>
+            <button onclick="loadData()" style="margin-top: auto;">🔄 Refresh Data</button>
         </div>
 
-        <div class="stats-grid">
+        <!-- Stats Cards -->
+        <div class="stats">
             <div class="stat-card">
                 <h3>Total Subscribers</h3>
-                <div class="value" id="totalSubscribers">--</div>
-                <div class="change" id="subsChange">Loading...</div>
+                <div class="value" id="totalSubs">--</div>
+                <div class="subtext"><span class="loading"></span> Loading...</div>
             </div>
             <div class="stat-card">
                 <h3>Total Views</h3>
                 <div class="value" id="totalViews">--</div>
-                <div class="change" id="viewsChange">Loading...</div>
+                <div class="subtext"><span class="loading"></span> Loading...</div>
             </div>
             <div class="stat-card">
                 <h3>Daily Views (Latest)</h3>
                 <div class="value" id="dailyViews">--</div>
-                <div class="change" id="dailyViewsChange">Loading...</div>
+                <div class="subtext"><span class="loading"></span> Loading...</div>
             </div>
             <div class="stat-card">
                 <h3>Stock Price (Latest)</h3>
                 <div class="value" id="stockPrice">--</div>
-                <div class="change" id="stockChange">Loading...</div>
+                <div class="subtext"><span class="loading"></span> Loading...</div>
             </div>
         </div>
 
-        <div class="charts-section">
+        <!-- Charts -->
+        <div class="charts">
             <!-- Daily Views Chart -->
             <div class="chart-container">
                 <div class="chart-header">
                     <h2>📈 Daily Views - Tips Music</h2>
                     <div class="chart-options">
-                        <div class="toggle-group">
-                            <button class="toggle-btn active" onclick="toggleViewsScale('linear')">Linear</button>
-                            <button class="toggle-btn" onclick="toggleViewsScale('log')">Logarithmic</button>
+                        <div class="btn-group">
+                            <button class="active" onclick="toggleScale('views', 'linear')">Linear</button>
+                            <button onclick="toggleScale('views', 'log')">Logarithmic</button>
                         </div>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="showViewsMA" onchange="updateViewsChart()">
-                            <label for="showViewsMA">Show MA (7/30/45)</label>
+                        <div class="btn-group">
+                            <button onclick="toggleMA('views')">Show MA (7/30/45)</button>
                         </div>
                     </div>
                 </div>
-                <div id="dailyViewsChart"></div>
+                <div id="viewsChart"></div>
             </div>
 
             <!-- Stock Price Chart -->
@@ -391,17 +381,16 @@
                 <div class="chart-header">
                     <h2>💹 Stock Price - NSE: TIPSMUSIC</h2>
                     <div class="chart-options">
-                        <div class="toggle-group">
-                            <button class="toggle-btn active" onclick="toggleStockScale('linear')">Linear</button>
-                            <button class="toggle-btn" onclick="toggleStockScale('log')">Logarithmic</button>
+                        <div class="btn-group">
+                            <button class="active" onclick="toggleScale('stock', 'linear')">Linear</button>
+                            <button onclick="toggleScale('stock', 'log')">Logarithmic</button>
                         </div>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="showStockMA" onchange="updateStockChart()">
-                            <label for="showStockMA">Show MA (7/30/45)</label>
+                        <div class="btn-group">
+                            <button onclick="toggleMA('stock')">Show MA (7/30/45)</button>
                         </div>
                     </div>
                 </div>
-                <div id="stockPriceChart"></div>
+                <div id="stockChart"></div>
             </div>
 
             <!-- Monthly Growth Chart -->
@@ -409,7 +398,7 @@
                 <div class="chart-header">
                     <h2>📊 Monthly Views Growth</h2>
                 </div>
-                <div id="monthlyGrowthChart"></div>
+                <div id="monthlyChart"></div>
             </div>
 
             <!-- Dual Axis Chart -->
@@ -417,67 +406,75 @@
                 <div class="chart-header">
                     <h2>🔗 Daily Views vs Stock Price (Dual-Axis)</h2>
                     <div class="chart-options">
-                        <div class="toggle-group">
-                            <button class="toggle-btn active" onclick="toggleDualAxisMode('raw')">Raw Daily Views</button>
-                            <button class="toggle-btn" onclick="toggleDualAxisMode('ma30')">30-Day MA</button>
-                            <button class="toggle-btn" onclick="toggleDualAxisMode('ma45')">45-Day MA</button>
-                            <button class="toggle-btn" onclick="toggleDualAxisMode('ma45_stock')">45-DMA (Views + Stock)</button>
+                        <div class="btn-group">
+                            <button class="active" onclick="toggleDualAxis('raw')">Raw Daily Views</button>
+                            <button onclick="toggleDualAxis('ma30')">30-Day MA</button>
+                            <button onclick="toggleDualAxis('ma45')">45-Day MA</button>
+                            <button onclick="toggleDualAxis('ma45_both')">45-DMA (Both)</button>
                         </div>
                     </div>
                 </div>
                 <div id="dualAxisChart"></div>
             </div>
+        </div>
 
-            <!-- Data Table -->
-            <div class="table-container">
-                <div class="chart-header">
-                    <h2>📋 Daily Channel Metrics</h2>
-                </div>
-                <table id="dataTable">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Daily Views</th>
-                            <th>Change</th>
-                            <th>% Change</th>
-                            <th>Stock Price (₹)</th>
-                            <th>Stock Change</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="6" class="loading">Loading data...</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="pagination">
-                    <button onclick="previousPage()">← Previous</button>
-                    <span id="pageInfo">Showing 0-0 of 0 records</span>
-                    <button onclick="nextPage()">Next →</button>
-                </div>
+        <!-- Data Table -->
+        <div class="table-container">
+            <h2 style="margin-bottom: 15px; color: #1e3c72;">📋 Daily Channel Metrics</h2>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Daily Views</th>
+                        <th>Change</th>
+                        <th>% Change</th>
+                        <th>Stock Price (₹)</th>
+                        <th>Stock Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Loading data...</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination">
+                <button onclick="changePage(-1)">← Previous</button>
+                <span id="pageInfo">Showing 0-0 of 0 records</span>
+                <button onclick="changePage(1)">Next →</button>
             </div>
         </div>
 
+        <!-- Footer -->
         <div class="footer">
             <p>Last updated: <span id="lastUpdated">--</span></p>
-            <p>💾 Data source: Supabase PostgreSQL | 📈 Stock: NSE TIPSMUSIC</p>
+            <p>| Data source: Supabase PostgreSQL | Stock: NSE TIPSMUSIC</p>
         </div>
     </div>
 
     <script>
-        // Configuration
+        // ============================================================
+        // CONFIGURATION
+        // ============================================================
         const SUPABASE_URL = 'https://bfafqccvzboyfjewzvhk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWZxY2N2emJveWZqZXd6dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2OTM4NzUsImV4cCI6MjA4MzI2OTg3NX0.OoyXHxHxAvSiE28NG3fz-S5QXcKz6OwspLrb9mSGH2Q';
 
-        // Global state
-        let allData = [];
+        // ============================================================
+        // GLOBAL STATE
+        // ============================================================
+        let globalData = [];
         let currentPage = 1;
         const rowsPerPage = 20;
-        let viewsScaleType = 'linear';
-        let stockScaleType = 'linear';
-        let dualAxisMode = 'raw';
+        let chartStates = {
+            views: { scale: 'linear', showMA: false },
+            stock: { scale: 'linear', showMA: false },
+            dualAxis: 'raw'
+        };
 
-        // Utility Functions
+        // ============================================================
+        // UTILITY FUNCTIONS
+        // ============================================================
+        
         function formatNumber(num) {
             if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
             if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
@@ -489,122 +486,134 @@
             return '₹' + num.toFixed(2);
         }
 
-        function calculateMA(data, window) {
-            const ma = [];
+        function calculateMA(data, period) {
+            const result = [];
             for (let i = 0; i < data.length; i++) {
-                if (i < window - 1) {
-                    ma.push(null);
+                if (i < period - 1) {
+                    result.push(null);
                 } else {
-                    const sum = data.slice(i - window + 1, i + 1).reduce((a, b) => a + (b || 0), 0);
-                    ma.push(sum / window);
+                    const sum = data.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0);
+                    result.push(sum / period);
                 }
             }
-            return ma;
+            return result;
         }
 
-        // Data Fetching
-        async function fetchData() {
+        // ============================================================
+        // DATA FETCHING
+        // ============================================================
+
+        async function fetchData(view, filters = {}) {
+            let url = `${SUPABASE_URL}/rest/v1/${view}?select=*`;
+            
+            Object.keys(filters).forEach(key => {
+                url += `&${key}=${filters[key]}`;
+            });
+
+            const response = await fetch(url, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return await response.json();
+        }
+
+        async function loadData() {
             try {
-                const timePeriod = document.getElementById('timePeriod').value;
+                // Get date range
+                const period = document.getElementById('timePeriod').value;
+                const fromDate = document.getElementById('fromDate').value;
+                const toDate = document.getElementById('toDate').value;
+
                 let dateFilter = '';
-
-                if (timePeriod !== 'all') {
-                    const days = parseInt(timePeriod);
-                    const fromDate = new Date();
-                    fromDate.setDate(fromDate.getDate() - days);
-                    dateFilter = `&date=gte.${fromDate.toISOString().split('T')[0]}`;
+                if (fromDate && toDate) {
+                    dateFilter = `date=gte.${fromDate}&date=lte.${toDate}`;
+                } else if (period !== 'all') {
+                    const days = parseInt(period);
+                    const startDate = new Date();
+                    startDate.setDate(startDate.getDate() - days);
+                    dateFilter = `date=gte.${startDate.toISOString().split('T')[0]}`;
                 }
 
-                const fromDateInput = document.getElementById('fromDate').value;
-                const toDateInput = document.getElementById('toDate').value;
-                
-                if (fromDateInput) {
-                    dateFilter = `&date=gte.${fromDateInput}`;
-                }
-                if (toDateInput) {
-                    dateFilter += `&date=lte.${toDateInput}`;
-                }
-
-                const url = `${SUPABASE_URL}/rest/v1/unified_analysis?select=*${dateFilter}&order=date.desc&limit=2000`;
-
-                const response = await fetch(url, {
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': `Bearer ${SUPABASE_KEY}`
-                    }
+                // Fetch unified data
+                const data = await fetchData('unified_analysis', {
+                    [dateFilter]: '',
+                    'order': 'date.desc',
+                    'limit': 2000
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                globalData = data.reverse(); // Sort ascending for charts
 
-                const data = await response.json();
-                allData = data.reverse(); // Oldest to newest for charts
-                
+                // Update UI
                 updateStats();
-                updateAllCharts();
+                updateCharts();
                 updateTable();
+                
                 document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
-
             } catch (error) {
-                console.error('Error fetching data:', error);
-                document.querySelector('.charts-section').innerHTML = 
-                    `<div class="error">❌ Error loading data: ${error.message}</div>`;
+                console.error('Error loading data:', error);
+                alert('Error loading data. Please check console for details.');
             }
         }
 
-        // Update Statistics
+        // ============================================================
+        // UPDATE FUNCTIONS
+        // ============================================================
+
         function updateStats() {
-            if (allData.length === 0) return;
+            if (globalData.length === 0) return;
 
-            const latest = allData[allData.length - 1];
-            const previous = allData[allData.length - 2] || latest;
-
-            // Total Subscribers
-            document.getElementById('totalSubscribers').textContent = formatNumber(latest.tips_subscribers);
-            const subsChange = latest.tips_subscribers - previous.tips_subscribers;
-            document.getElementById('subsChange').textContent = `${subsChange >= 0 ? '+' : ''}${formatNumber(subsChange)}`;
-            document.getElementById('subsChange').className = subsChange >= 0 ? 'change' : 'change negative';
-
-            // Total Views
+            const latest = globalData[globalData.length - 1];
+            
+            document.getElementById('totalSubs').textContent = formatNumber(latest.tips_subscribers);
             document.getElementById('totalViews').textContent = formatNumber(latest.tips_views);
-            const viewsChange = latest.tips_views - previous.tips_views;
-            document.getElementById('viewsChange').textContent = `${viewsChange >= 0 ? '+' : ''}${formatNumber(viewsChange)}`;
-            document.getElementById('viewsChange').className = viewsChange >= 0 ? 'change' : 'change negative';
-
-            // Daily Views
             document.getElementById('dailyViews').textContent = formatNumber(latest.daily_views_change || 0);
-            const dailyChange = (latest.daily_views_change || 0) - (previous.daily_views_change || 0);
-            document.getElementById('dailyViewsChange').textContent = `${dailyChange >= 0 ? '+' : ''}${formatNumber(dailyChange)}`;
-            document.getElementById('dailyViewsChange').className = dailyChange >= 0 ? 'change' : 'change negative';
+            document.getElementById('stockPrice').textContent = formatCurrency(latest.stock_price);
 
-            // Stock Price
-            document.getElementById('stockPrice').textContent = formatCurrency(latest.stock_price || 0);
-            const stockChange = (latest.stock_price || 0) - (previous.stock_price || 0);
-            const stockChangePct = previous.stock_price ? (stockChange / previous.stock_price * 100) : 0;
-            document.getElementById('stockChange').textContent = `${stockChange >= 0 ? '+' : ''}${formatCurrency(stockChange)} (${stockChangePct.toFixed(2)}%)`;
-            document.getElementById('stockChange').className = stockChange >= 0 ? 'change' : 'change negative';
+            // Update subtexts
+            document.querySelectorAll('.stat-card .subtext').forEach(el => {
+                el.innerHTML = `<span style="color: #28a745;">↑</span> Updated`;
+            });
         }
 
-        // Chart Updates
-        function updateViewsChart() {
-            const dates = allData.map(d => d.date);
-            const dailyViews = allData.map(d => d.daily_views_change || 0);
-            const showMA = document.getElementById('showViewsMA').checked;
+        function updateCharts() {
+            const dates = globalData.map(d => d.date);
+            const dailyViews = globalData.map(d => d.daily_views_change || 0);
+            const stockPrices = globalData.map(d => d.stock_price);
 
+            // Daily Views Chart
+            updateViewsChart(dates, dailyViews);
+
+            // Stock Price Chart
+            updateStockChart(dates, stockPrices);
+
+            // Monthly Growth Chart
+            updateMonthlyChart();
+
+            // Dual Axis Chart
+            updateDualAxisChart(dates, dailyViews, stockPrices);
+        }
+
+        function updateViewsChart(dates, views) {
             const traces = [{
                 x: dates,
-                y: dailyViews,
+                y: views,
                 type: 'scatter',
                 mode: 'lines',
                 name: 'Daily Views',
                 line: { color: '#667eea', width: 2 }
             }];
 
-            if (showMA) {
-                const ma7 = calculateMA(dailyViews, 7);
-                const ma30 = calculateMA(dailyViews, 30);
-                const ma45 = calculateMA(dailyViews, 45);
+            if (chartStates.views.showMA) {
+                const ma7 = calculateMA(views, 7);
+                const ma30 = calculateMA(views, 30);
+                const ma45 = calculateMA(views, 45);
 
                 traces.push({
                     x: dates,
@@ -621,7 +630,7 @@
                     type: 'scatter',
                     mode: 'lines',
                     name: '30-Day MA',
-                    line: { color: '#28a745', width: 2 }
+                    line: { color: '#ff6b6b', width: 1.5, dash: 'dot' }
                 });
 
                 traces.push({
@@ -630,47 +639,39 @@
                     type: 'scatter',
                     mode: 'lines',
                     name: '45-Day MA',
-                    line: { color: '#dc3545', width: 2 }
+                    line: { color: '#4ecdc4', width: 2 }
                 });
             }
 
             const layout = {
+                title: '',
+                xaxis: { title: 'Date' },
                 yaxis: { 
-                    type: viewsScaleType,
                     title: 'Daily Views',
-                    gridcolor: '#e0e0e0'
-                },
-                xaxis: { 
-                    title: 'Date',
-                    gridcolor: '#e0e0e0'
+                    type: chartStates.views.scale
                 },
                 hovermode: 'x unified',
                 showlegend: true,
-                legend: { orientation: 'h', y: -0.2 },
-                margin: { t: 20, b: 60, l: 60, r: 20 }
+                margin: { t: 40, r: 40, b: 60, l: 80 }
             };
 
-            Plotly.newPlot('dailyViewsChart', traces, layout, {responsive: true});
+            Plotly.newPlot('viewsChart', traces, layout, { responsive: true });
         }
 
-        function updateStockChart() {
-            const dates = allData.map(d => d.date);
-            const stockPrices = allData.map(d => d.stock_price || null);
-            const showMA = document.getElementById('showStockMA').checked;
-
+        function updateStockChart(dates, prices) {
             const traces = [{
                 x: dates,
-                y: stockPrices,
+                y: prices,
                 type: 'scatter',
                 mode: 'lines',
                 name: 'Stock Price',
-                line: { color: '#1e3c72', width: 2 }
+                line: { color: '#764ba2', width: 2 }
             }];
 
-            if (showMA) {
-                const ma7 = calculateMA(stockPrices, 7);
-                const ma30 = calculateMA(stockPrices, 30);
-                const ma45 = calculateMA(stockPrices, 45);
+            if (chartStates.stock.showMA) {
+                const ma7 = calculateMA(prices, 7);
+                const ma30 = calculateMA(prices, 30);
+                const ma45 = calculateMA(prices, 45);
 
                 traces.push({
                     x: dates,
@@ -687,7 +688,7 @@
                     type: 'scatter',
                     mode: 'lines',
                     name: '30-Day MA',
-                    line: { color: '#28a745', width: 2 }
+                    line: { color: '#ff6b6b', width: 1.5, dash: 'dot' }
                 });
 
                 traces.push({
@@ -696,244 +697,289 @@
                     type: 'scatter',
                     mode: 'lines',
                     name: '45-Day MA',
-                    line: { color: '#dc3545', width: 2 }
+                    line: { color: '#4ecdc4', width: 2 }
                 });
             }
 
             const layout = {
+                title: '',
+                xaxis: { title: 'Date' },
                 yaxis: { 
-                    type: stockScaleType,
-                    title: 'Price (₹)',
-                    gridcolor: '#e0e0e0'
-                },
-                xaxis: { 
-                    title: 'Date',
-                    gridcolor: '#e0e0e0'
+                    title: 'Stock Price (₹)',
+                    type: chartStates.stock.scale
                 },
                 hovermode: 'x unified',
                 showlegend: true,
-                legend: { orientation: 'h', y: -0.2 },
-                margin: { t: 20, b: 60, l: 60, r: 20 }
+                margin: { t: 40, r: 40, b: 60, l: 80 }
             };
 
-            Plotly.newPlot('stockPriceChart', traces, layout, {responsive: true});
+            Plotly.newPlot('stockChart', traces, layout, { responsive: true });
         }
 
-        function updateMonthlyGrowthChart() {
+        function updateMonthlyChart() {
+            // Aggregate by month
             const monthlyData = {};
             
-            allData.forEach(d => {
-                const month = d.date.substring(0, 7);
+            globalData.forEach(row => {
+                const month = row.date.substring(0, 7); // YYYY-MM
                 if (!monthlyData[month]) {
-                    monthlyData[month] = [];
+                    monthlyData[month] = { views: 0, count: 0 };
                 }
-                monthlyData[month].push(d.daily_views_change || 0);
+                monthlyData[month].views += (row.daily_views_change || 0);
+                monthlyData[month].count++;
             });
 
             const months = Object.keys(monthlyData).sort();
-            const monthlyTotals = months.map(m => 
-                monthlyData[m].reduce((a, b) => a + b, 0)
-            );
+            const avgViews = months.map(m => monthlyData[m].views / monthlyData[m].count);
 
             const trace = {
                 x: months,
-                y: monthlyTotals,
+                y: avgViews,
                 type: 'bar',
                 marker: { 
-                    color: monthlyTotals.map(v => v >= 0 ? '#28a745' : '#dc3545')
-                },
-                text: monthlyTotals.map(v => formatNumber(v)),
-                textposition: 'outside'
+                    color: avgViews,
+                    colorscale: 'Viridis'
+                }
             };
 
             const layout = {
-                yaxis: { 
-                    title: 'Total Monthly Views',
-                    gridcolor: '#e0e0e0'
-                },
-                xaxis: { 
-                    title: 'Month',
-                    gridcolor: '#e0e0e0'
-                },
-                showlegend: false,
-                margin: { t: 20, b: 60, l: 80, r: 20 }
+                title: '',
+                xaxis: { title: 'Month' },
+                yaxis: { title: 'Avg Daily Views' },
+                margin: { t: 40, r: 40, b: 60, l: 80 }
             };
 
-            Plotly.newPlot('monthlyGrowthChart', [trace], layout, {responsive: true});
+            Plotly.newPlot('monthlyChart', [trace], layout, { responsive: true });
         }
 
-        function updateDualAxisChart() {
-            const dates = allData.map(d => d.date);
-            const dailyViews = allData.map(d => d.daily_views_change || 0);
-            const stockPrices = allData.map(d => d.stock_price || null);
+        function updateDualAxisChart(dates, views, prices) {
+            let traces = [];
 
-            let viewsData, viewsName, stockData, stockName;
+            if (chartStates.dualAxis === 'raw') {
+                traces = [
+                    {
+                        x: dates,
+                        y: views,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: 'Daily Views',
+                        line: { color: '#667eea', width: 2 },
+                        yaxis: 'y'
+                    },
+                    {
+                        x: dates,
+                        y: prices,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: 'Stock Price',
+                        line: { color: '#764ba2', width: 2 },
+                        yaxis: 'y2'
+                    }
+                ];
+            } else if (chartStates.dualAxis === 'ma30') {
+                const viewsMA30 = calculateMA(views, 30);
+                const pricesMA30 = calculateMA(prices, 30);
 
-            if (dualAxisMode === 'raw') {
-                viewsData = dailyViews;
-                viewsName = 'Daily Views';
-                stockData = stockPrices;
-                stockName = 'Stock Price';
-            } else if (dualAxisMode === 'ma30') {
-                viewsData = calculateMA(dailyViews, 30);
-                viewsName = '30-Day MA (Views)';
-                stockData = stockPrices;
-                stockName = 'Stock Price';
-            } else if (dualAxisMode === 'ma45') {
-                viewsData = calculateMA(dailyViews, 45);
-                viewsName = '45-Day MA (Views)';
-                stockData = stockPrices;
-                stockName = 'Stock Price';
-            } else if (dualAxisMode === 'ma45_stock') {
-                viewsData = calculateMA(dailyViews, 45);
-                viewsName = '45-Day MA (Views)';
-                stockData = calculateMA(stockPrices, 45);
-                stockName = '45-Day MA (Stock)';
+                traces = [
+                    {
+                        x: dates,
+                        y: viewsMA30,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: 'Daily Views (30-MA)',
+                        line: { color: '#667eea', width: 2 },
+                        yaxis: 'y'
+                    },
+                    {
+                        x: dates,
+                        y: pricesMA30,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: 'Stock Price (30-MA)',
+                        line: { color: '#764ba2', width: 2 },
+                        yaxis: 'y2'
+                    }
+                ];
+            } else if (chartStates.dualAxis === 'ma45') {
+                const viewsMA45 = calculateMA(views, 45);
+                const pricesMA45 = calculateMA(prices, 45);
+
+                traces = [
+                    {
+                        x: dates,
+                        y: viewsMA45,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: 'Daily Views (45-MA)',
+                        line: { color: '#667eea', width: 2 },
+                        yaxis: 'y'
+                    },
+                    {
+                        x: dates,
+                        y: pricesMA45,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: 'Stock Price (45-MA)',
+                        line: { color: '#764ba2', width: 2 },
+                        yaxis: 'y2'
+                    }
+                ];
+            } else if (chartStates.dualAxis === 'ma45_both') {
+                // NEW: Show both 45-DMA lines together
+                const viewsMA45 = calculateMA(views, 45);
+                const pricesMA45 = calculateMA(prices, 45);
+
+                traces = [
+                    {
+                        x: dates,
+                        y: viewsMA45,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: '45-DMA Daily Views',
+                        line: { color: '#667eea', width: 3 },
+                        yaxis: 'y'
+                    },
+                    {
+                        x: dates,
+                        y: pricesMA45,
+                        type: 'scatter',
+                        mode: 'lines',
+                        name: '45-DMA Stock Price',
+                        line: { color: '#764ba2', width: 3 },
+                        yaxis: 'y2'
+                    }
+                ];
             }
 
-            const trace1 = {
-                x: dates,
-                y: viewsData,
-                type: 'scatter',
-                mode: 'lines',
-                name: viewsName,
-                line: { color: '#667eea', width: 2.5 },
-                yaxis: 'y'
-            };
-
-            const trace2 = {
-                x: dates,
-                y: stockData,
-                type: 'scatter',
-                mode: 'lines',
-                name: stockName,
-                line: { color: '#dc3545', width: 2.5 },
-                yaxis: 'y2'
-            };
-
             const layout = {
+                title: '',
+                xaxis: { title: 'Date' },
                 yaxis: {
-                    title: viewsName,
+                    title: 'Daily Views',
                     titlefont: { color: '#667eea' },
-                    tickfont: { color: '#667eea' },
-                    gridcolor: '#e0e0e0'
+                    tickfont: { color: '#667eea' }
                 },
                 yaxis2: {
-                    title: stockName + ' (₹)',
-                    titlefont: { color: '#dc3545' },
-                    tickfont: { color: '#dc3545' },
+                    title: 'Stock Price (₹)',
+                    titlefont: { color: '#764ba2' },
+                    tickfont: { color: '#764ba2' },
                     overlaying: 'y',
                     side: 'right'
                 },
-                xaxis: { 
-                    title: 'Date',
-                    gridcolor: '#e0e0e0'
-                },
                 hovermode: 'x unified',
                 showlegend: true,
-                legend: { orientation: 'h', y: -0.2 },
-                margin: { t: 20, b: 60, l: 80, r: 80 }
+                margin: { t: 40, r: 80, b: 60, l: 80 }
             };
 
-            Plotly.newPlot('dualAxisChart', [trace1, trace2], layout, {responsive: true});
+            Plotly.newPlot('dualAxisChart', traces, layout, { responsive: true });
         }
 
-        function updateAllCharts() {
-            updateViewsChart();
-            updateStockChart();
-            updateMonthlyGrowthChart();
-            updateDualAxisChart();
-        }
-
-        // Toggle Functions
-        function toggleViewsScale(scale) {
-            viewsScaleType = scale;
-            document.querySelectorAll('#dailyViewsChart').forEach(el => {
-                el.parentElement.querySelectorAll('.toggle-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-            });
-            event.target.classList.add('active');
-            updateViewsChart();
-        }
-
-        function toggleStockScale(scale) {
-            stockScaleType = scale;
-            document.querySelectorAll('#stockPriceChart').forEach(el => {
-                el.parentElement.querySelectorAll('.toggle-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-            });
-            event.target.classList.add('active');
-            updateStockChart();
-        }
-
-        function toggleDualAxisMode(mode) {
-            dualAxisMode = mode;
-            document.querySelectorAll('#dualAxisChart').forEach(el => {
-                el.parentElement.querySelectorAll('.toggle-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-            });
-            event.target.classList.add('active');
-            updateDualAxisChart();
-        }
-
-        // Table Functions
         function updateTable() {
             const tbody = document.querySelector('#dataTable tbody');
             const start = (currentPage - 1) * rowsPerPage;
             const end = start + rowsPerPage;
-            const pageData = allData.slice().reverse().slice(start, end);
+            const pageData = globalData.slice().reverse().slice(start, end);
 
             tbody.innerHTML = '';
 
             pageData.forEach((row, idx) => {
-                const prevRow = allData.slice().reverse()[start + idx + 1];
-                const viewsChange = prevRow ? (row.daily_views_change || 0) - (prevRow.daily_views_change || 0) : 0;
-                const viewsChangePct = prevRow && prevRow.daily_views_change ? 
-                    (viewsChange / prevRow.daily_views_change * 100) : 0;
-                const stockChange = prevRow && prevRow.stock_price ? 
-                    (row.stock_price || 0) - (prevRow.stock_price || 0) : 0;
+                const prevRow = globalData[globalData.length - 1 - start - idx - 1];
+                
+                const viewChange = prevRow ? (row.daily_views_change || 0) - (prevRow.daily_views_change || 0) : 0;
+                const viewChangePct = prevRow && prevRow.daily_views_change ? (viewChange / prevRow.daily_views_change * 100) : 0;
+                const stockChange = prevRow ? (row.stock_price - prevRow.stock_price) : 0;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${row.date}</td>
                     <td>${formatNumber(row.daily_views_change || 0)}</td>
-                    <td style="color: ${viewsChange >= 0 ? '#28a745' : '#dc3545'}">${viewsChange >= 0 ? '+' : ''}${formatNumber(viewsChange)}</td>
-                    <td style="color: ${viewsChangePct >= 0 ? '#28a745' : '#dc3545'}">${viewsChangePct.toFixed(2)}%</td>
-                    <td>${formatCurrency(row.stock_price || 0)}</td>
-                    <td style="color: ${stockChange >= 0 ? '#28a745' : '#dc3545'}">${stockChange >= 0 ? '+' : ''}${formatCurrency(stockChange)}</td>
+                    <td class="${viewChange >= 0 ? 'positive' : 'negative'}">${viewChange >= 0 ? '+' : ''}${formatNumber(viewChange)}</td>
+                    <td class="${viewChangePct >= 0 ? 'positive' : 'negative'}">${viewChangePct >= 0 ? '+' : ''}${viewChangePct.toFixed(2)}%</td>
+                    <td>${formatCurrency(row.stock_price)}</td>
+                    <td class="${stockChange >= 0 ? 'positive' : 'negative'}">${stockChange >= 0 ? '+' : ''}${formatCurrency(stockChange)}</td>
                 `;
                 tbody.appendChild(tr);
             });
 
             document.getElementById('pageInfo').textContent = 
-                `Showing ${start + 1}-${Math.min(end, allData.length)} of ${allData.length} records`;
+                `Showing ${start + 1}-${Math.min(end, globalData.length)} of ${globalData.length} records`;
         }
 
-        function previousPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                updateTable();
+        // ============================================================
+        // INTERACTION HANDLERS
+        // ============================================================
+
+        function toggleScale(chart, scale) {
+            chartStates[chart].scale = scale;
+            
+            const buttons = event.target.parentElement.querySelectorAll('button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (chart === 'views') {
+                const dates = globalData.map(d => d.date);
+                const views = globalData.map(d => d.daily_views_change || 0);
+                updateViewsChart(dates, views);
+            } else if (chart === 'stock') {
+                const dates = globalData.map(d => d.date);
+                const prices = globalData.map(d => d.stock_price);
+                updateStockChart(dates, prices);
             }
         }
 
-        function nextPage() {
-            if (currentPage * rowsPerPage < allData.length) {
-                currentPage++;
-                updateTable();
+        function toggleMA(chart) {
+            chartStates[chart].showMA = !chartStates[chart].showMA;
+            
+            const dates = globalData.map(d => d.date);
+            
+            if (chart === 'views') {
+                const views = globalData.map(d => d.daily_views_change || 0);
+                updateViewsChart(dates, views);
+            } else if (chart === 'stock') {
+                const prices = globalData.map(d => d.stock_price);
+                updateStockChart(dates, prices);
             }
         }
 
-        function refreshData() {
-            currentPage = 1;
-            fetchData();
+        function toggleDualAxis(mode) {
+            chartStates.dualAxis = mode;
+            
+            const buttons = event.target.parentElement.querySelectorAll('button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const dates = globalData.map(d => d.date);
+            const views = globalData.map(d => d.daily_views_change || 0);
+            const prices = globalData.map(d => d.stock_price);
+            
+            updateDualAxisChart(dates, views, prices);
         }
 
-        // Initialize
-        window.onload = () => {
-            fetchData();
+        function changePage(direction) {
+            const totalPages = Math.ceil(globalData.length / rowsPerPage);
+            currentPage += direction;
+            
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            
+            updateTable();
+        }
+
+        // ============================================================
+        // INITIALIZATION
+        // ============================================================
+
+        window.onload = function() {
+            // Set default dates
+            const today = new Date();
+            const oneYearAgo = new Date();
+            oneYearAgo.setFullYear(today.getFullYear() - 1);
+            
+            document.getElementById('toDate').valueAsDate = today;
+            document.getElementById('fromDate').valueAsDate = oneYearAgo;
+
+            // Load data
+            loadData();
         };
     </script>
 </body>
