@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tips Music Analytics Dashboard</title>
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <title>Tips Music Analytics Dashboard | YouTube & Stock Correlation</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,141 +12,205 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            min-height: 100vh;
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --background: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
-        .container {
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 30px;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #667eea;
-        }
-
-        h1 {
-            color: #667eea;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .subtitle {
-            color: #666;
-            font-size: 1.1em;
-        }
-
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            align-items: center;
-            background: #f8f9fa;
             padding: 20px;
-            border-radius: 10px;
         }
 
-        .control-group {
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .dashboard-header p {
+            opacity: 0.95;
+            font-size: 1.1rem;
+        }
+
+        .filters-container {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 8px;
+            min-width: 180px;
         }
 
-        .control-group label {
+        .filter-group label {
             font-weight: 600;
-            color: #495057;
-            font-size: 0.9em;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        select, input, button {
-            padding: 10px 15px;
-            border: 2px solid #dee2e6;
+        select, input[type="date"] {
+            padding: 10px 14px;
+            border: 2px solid var(--border);
             border-radius: 8px;
-            font-size: 0.95em;
-            transition: all 0.3s ease;
+            font-size: 1rem;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
 
-        select:focus, input:focus {
+        select:hover, input[type="date"]:hover {
+            border-color: var(--primary);
+        }
+
+        select:focus, input[type="date"]:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        button {
-            background: #667eea;
-            color: white;
+        .btn {
+            padding: 12px 24px;
             border: none;
-            cursor: pointer;
+            border-radius: 8px;
+            font-size: 1rem;
             font-weight: 600;
-            padding: 10px 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        button:hover {
-            background: #5568d3;
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: var(--shadow-lg);
         }
 
-        button:active {
+        .btn-primary:active {
             transform: translateY(0);
         }
 
-        .stats-grid {
+        .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
 
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .metric-card {
+            background: var(--card-bg);
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            transition: transform 0.3s ease;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .stat-card:hover {
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .metric-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            box-shadow: var(--shadow-lg);
         }
 
-        .stat-label {
-            font-size: 0.9em;
-            opacity: 0.9;
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
             margin-bottom: 8px;
         }
 
-        .stat-value {
-            font-size: 2em;
-            font-weight: bold;
+        .metric-change {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        .stat-change {
-            font-size: 0.85em;
-            margin-top: 5px;
-            opacity: 0.9;
+        .metric-change.positive {
+            color: var(--success);
+        }
+
+        .metric-change.negative {
+            color: var(--danger);
+        }
+
+        .charts-grid {
+            display: grid;
+            gap: 30px;
+            margin-bottom: 30px;
         }
 
         .chart-container {
-            background: white;
-            border-radius: 12px;
+            background: var(--card-bg);
             padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
         }
 
         .chart-header {
@@ -159,166 +223,209 @@
         }
 
         .chart-title {
-            font-size: 1.5em;
-            color: #495057;
-            font-weight: 600;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
         }
 
         .chart-controls {
             display: flex;
             gap: 10px;
-            align-items: center;
+            flex-wrap: wrap;
         }
 
-        .toggle-group {
-            display: flex;
-            gap: 10px;
-            background: #f8f9fa;
-            padding: 8px;
-            border-radius: 8px;
-        }
-
-        .toggle-btn {
-            padding: 8px 15px;
-            background: white;
-            border: 2px solid #dee2e6;
+        .chart-toggle {
+            padding: 8px 16px;
+            border: 2px solid var(--border);
+            background: var(--card-bg);
             border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
         }
 
-        .toggle-btn.active {
-            background: #667eea;
+        .chart-toggle:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .chart-toggle.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
-            border-color: #667eea;
+            border-color: transparent;
         }
 
-        .toggle-btn:hover {
-            border-color: #667eea;
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
         }
 
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f8f9fa;
-            padding: 8px 12px;
-            border-radius: 8px;
+        .chart-wrapper.large {
+            height: 500px;
         }
 
-        .checkbox-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-style: italic;
         }
 
-        .checkbox-group label {
-            cursor: pointer;
-            font-size: 0.9em;
-            color: #495057;
-            font-weight: 500;
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            padding: 20px 25px;
+            border-bottom: 2px solid var(--border);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
         }
 
         th {
-            background: #667eea;
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            background: var(--background);
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
         }
 
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #dee2e6;
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s ease;
         }
 
-        tr:hover {
-            background: #f8f9fa;
+        tbody tr:hover {
+            background: var(--background);
         }
 
         .pagination {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
+            padding: 20px 25px;
+            border-top: 2px solid var(--border);
         }
 
-        .pagination button {
+        .pagination-info {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .pagination-btn {
             padding: 8px 16px;
-            font-size: 0.9em;
-        }
-
-        .positive {
-            color: #28a745;
+            border: 2px solid var(--border);
+            background: var(--card-bg);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
             font-weight: 600;
+            color: var(--text-secondary);
         }
 
-        .negative {
-            color: #dc3545;
+        .pagination-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer-time {
             font-weight: 600;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #dee2e6;
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #6c757d;
-            font-style: italic;
+            color: var(--text-primary);
         }
 
         @media (max-width: 768px) {
-            .container {
+            .dashboard-container {
                 padding: 15px;
             }
 
-            h1 {
-                font-size: 1.8em;
+            .dashboard-header h1 {
+                font-size: 1.5rem;
             }
 
-            .controls {
+            .filters-container {
                 flex-direction: column;
             }
 
-            .chart-header {
-                flex-direction: column;
-                align-items: flex-start;
+            .filter-group {
+                width: 100%;
             }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-wrapper {
+                height: 300px;
+            }
+
+            .chart-wrapper.large {
+                height: 350px;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c00;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c00;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🎵 Tips Music Analytics Dashboard</h1>
-            <p class="subtitle">YouTube Performance & Stock Price Correlation Analysis</p>
-        </header>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1>📊 Tips Music Analytics Dashboard</h1>
+            <p>YouTube Performance & NSE Stock Correlation Analysis</p>
+        </div>
 
-        <!-- Controls -->
-        <div class="controls">
-            <div class="control-group">
-                <label>⏱️ Time Period</label>
-                <select id="timePeriod" onchange="applyTimePeriod()">
+        <!-- Filters -->
+        <div class="filters-container">
+            <div class="filter-group">
+                <label>Time Period</label>
+                <select id="timeRange" onchange="updateDateRange()">
                     <option value="30">Last 30 Days</option>
                     <option value="90">Last 90 Days</option>
                     <option value="180">Last 6 Months</option>
@@ -326,145 +433,143 @@
                     <option value="all">All Time (2023-Present)</option>
                 </select>
             </div>
-            <div class="control-group">
-                <label>📅 From Date</label>
-                <input type="date" id="fromDate">
+            <div class="filter-group">
+                <label>From Date</label>
+                <input type="date" id="startDate">
             </div>
-            <div class="control-group">
-                <label>📅 To Date</label>
-                <input type="date" id="toDate">
+            <div class="filter-group">
+                <label>To Date</label>
+                <input type="date" id="endDate">
             </div>
-            <button onclick="loadData()" style="margin-top: 20px;">🔄 Refresh Data</button>
-        </div>
-
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Subscribers</div>
-                <div class="stat-value" id="totalSubs">--</div>
-                <div class="stat-change" id="subsChange">Loading...</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Views</div>
-                <div class="stat-value" id="totalViews">--</div>
-                <div class="stat-change" id="viewsChange">Loading...</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Daily Views (Latest)</div>
-                <div class="stat-value" id="dailyViews">--</div>
-                <div class="stat-change" id="dailyChange">Loading...</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Stock Price (Latest)</div>
-                <div class="stat-value" id="stockPrice">--</div>
-                <div class="stat-change" id="stockChange">Loading...</div>
+            <div class="filter-group">
+                <button class="btn btn-primary" onclick="loadDashboardData()">🔄 Refresh Data</button>
             </div>
         </div>
 
-        <!-- Chart 1: Daily Views -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h2 class="chart-title">📈 Daily Views - Tips Music</h2>
-                <div class="chart-controls">
-                    <div class="toggle-group">
-                        <button class="toggle-btn active" onclick="setViewsScale('linear')">Linear</button>
-                        <button class="toggle-btn" onclick="setViewsScale('log')">Logarithmic</button>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="showViewsMA" onchange="updateViewsChart()">
-                        <label for="showViewsMA">Show MA (7/30/45)</label>
+        <!-- Error Message (hidden by default) -->
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Total Subscribers</div>
+                <div class="metric-value" id="totalSubscribers">--</div>
+                <div class="metric-change" id="subscribersChange">Loading...</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Total Views</div>
+                <div class="metric-value" id="totalViews">--</div>
+                <div class="metric-change" id="viewsChange">Loading...</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Daily Views (Latest)</div>
+                <div class="metric-value" id="dailyViews">--</div>
+                <div class="metric-change" id="dailyViewsChange">Loading...</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Stock Price (Latest)</div>
+                <div class="metric-value" id="stockPrice">--</div>
+                <div class="metric-change" id="stockPriceChange">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <!-- Daily Views Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">📈 Daily Views - Tips Music</h3>
+                    <div class="chart-controls">
+                        <button class="chart-toggle active" onclick="toggleDailyViewsScale('linear')">Linear</button>
+                        <button class="chart-toggle" onclick="toggleDailyViewsScale('log')">Logarithmic</button>
+                        <button class="chart-toggle" onclick="toggleDailyViewsMA()">Show MA (7/30/45)</button>
                     </div>
                 </div>
-            </div>
-            <div id="viewsChart"></div>
-        </div>
-
-        <!-- Chart 2: Stock Price -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h2 class="chart-title">💹 Stock Price - NSE: TIPSMUSIC</h2>
-                <div class="chart-controls">
-                    <div class="toggle-group">
-                        <button class="toggle-btn active" onclick="setStockScale('linear')">Linear</button>
-                        <button class="toggle-btn" onclick="setStockScale('log')">Logarithmic</button>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="showStockMA" onchange="updateStockChart()">
-                        <label for="showStockMA">Show MA (7/30/45)</label>
-                    </div>
+                <div class="chart-wrapper">
+                    <canvas id="dailyViewsChart"></canvas>
                 </div>
             </div>
-            <div id="stockChart"></div>
-        </div>
 
-        <!-- Chart 3: Monthly Views Growth -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h2 class="chart-title">📊 Monthly Views Growth</h2>
-            </div>
-            <div id="monthlyChart"></div>
-        </div>
-
-        <!-- Chart 4: Dual Axis Chart -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h2 class="chart-title">🔗 Daily Views vs Stock Price (Dual-Axis)</h2>
-                <div class="chart-controls">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="showDualRaw" checked onchange="updateDualAxisChart()">
-                        <label for="showDualRaw">Raw Daily Views</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="showDual30MA" onchange="updateDualAxisChart()">
-                        <label for="showDual30MA">30-Day MA</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="showDual45MA" onchange="updateDualAxisChart()">
-                        <label for="showDual45MA">45-Day MA</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="showDualStock45MA" onchange="updateDualAxisChart()">
-                        <label for="showDualStock45MA">Stock 45-Day MA</label>
+            <!-- Stock Price Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">💹 Stock Price - NSE: TIPSMUSIC</h3>
+                    <div class="chart-controls">
+                        <button class="chart-toggle active" onclick="toggleStockScale('linear')">Linear</button>
+                        <button class="chart-toggle" onclick="toggleStockScale('log')">Logarithmic</button>
+                        <button class="chart-toggle" onclick="toggleStockMA()">Show MA (7/30/45)</button>
                     </div>
                 </div>
+                <div class="chart-wrapper">
+                    <canvas id="stockChart"></canvas>
+                </div>
             </div>
-            <div id="dualAxisChart"></div>
+
+            <!-- Monthly Growth Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">📊 Monthly Views Growth</h3>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="monthlyGrowthChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Comparison Chart (Dual-Axis) -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">🔗 Daily Views vs Stock Price (Dual-Axis)</h3>
+                    <div class="chart-controls">
+                        <button class="chart-toggle active" onclick="toggleComparisonMode('raw')">Raw Daily Views</button>
+                        <button class="chart-toggle" onclick="toggleComparisonMode('ma30')">30-Day MA</button>
+                        <button class="chart-toggle" onclick="toggleComparisonMode('ma45')">45-Day MA</button>
+                        <button class="chart-toggle" onclick="toggleComparisonMode('stock45')">45-DMA Stock</button>
+                    </div>
+                </div>
+                <div class="chart-wrapper large">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
         </div>
 
         <!-- Data Table -->
-        <div class="chart-container">
-            <div class="chart-header">
-                <h2 class="chart-title">📋 Daily Channel Metrics</h2>
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="chart-title">📋 Daily Channel Metrics</h3>
             </div>
-            <div style="overflow-x: auto;">
-                <table id="dataTable">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Daily Views</th>
-                            <th>Change</th>
-                            <th>% Change</th>
-                            <th>Stock Price (₹)</th>
-                            <th>Stock Change</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        <tr>
-                            <td colspan="6" class="loading">Loading data...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Daily Views</th>
+                        <th>Change</th>
+                        <th>% Change</th>
+                        <th>Stock Price (₹)</th>
+                        <th>Stock Change</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTableBody">
+                    <tr>
+                        <td colspan="6" class="loading">Loading data...</td>
+                    </tr>
+                </tbody>
+            </table>
             <div class="pagination">
-                <button onclick="previousPage()">← Previous</button>
-                <span id="pageInfo">Showing 0-0 of 0 records</span>
-                <button onclick="nextPage()">Next →</button>
+                <div class="pagination-info" id="paginationInfo">Showing 0-0 of 0 records</div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" onclick="previousPage()" id="prevBtn">← Previous</button>
+                    <button class="pagination-btn" onclick="nextPage()" id="nextBtn">Next →</button>
+                </div>
             </div>
         </div>
 
-        <footer>
-            <p>Last updated: <span id="lastUpdate">--</span> | Data source: Supabase PostgreSQL | Stock: NSE TIPSMUSIC</p>
-        </footer>
+        <!-- Footer -->
+        <div class="footer">
+            <p>Last updated: <span class="footer-time" id="lastUpdated">--</span></p>
+            <p style="margin-top: 10px; color: var(--text-secondary);">
+                Data source: Supabase PostgreSQL | Stock: NSE TIPSMUSIC
+            </p>
+        </div>
     </div>
 
     <script>
@@ -475,467 +580,811 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJmYWZxY2N2emJveWZqZXd6dmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2OTM4NzUsImV4cCI6MjA4MzI2OTg3NX0.OoyXHxHxAvSiE28NG3fz-S5QXcKz6OwspLrb9mSGH2Q';
 
         // Global state
-        let rawData = [];
-        let filteredData = [];
+        let dashboardData = {
+            tipsDaily: [],
+            stockPrices: [],
+            monthlyData: []
+        };
+
+        let charts = {
+            dailyViews: null,
+            stock: null,
+            monthlyGrowth: null,
+            comparison: null
+        };
+
+        let chartSettings = {
+            dailyViewsScale: 'linear',
+            stockScale: 'linear',
+            dailyViewsShowMA: false,
+            stockShowMA: false
+        };
+
+        let comparisonMode = 'raw'; // 'raw', 'ma30', 'ma45', 'stock45'
+
         let currentPage = 1;
-        const rowsPerPage = 50;
-        let viewsChartScale = 'linear';
-        let stockChartScale = 'linear';
+        const rowsPerPage = 20;
 
         // ============================================================
         // DATA FETCHING
         // ============================================================
-        async function fetchData(query) {
-            const url = `${SUPABASE_URL}/rest/v1/${query}`;
+
+        async function fetchSupabaseData(endpoint, params = {}) {
+            const url = new URL(`${SUPABASE_URL}/rest/v1/${endpoint}`);
+            Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+
             const response = await fetch(url, {
                 headers: {
                     'apikey': SUPABASE_KEY,
                     'Authorization': `Bearer ${SUPABASE_KEY}`
                 }
             });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             return await response.json();
         }
 
-        async function loadData() {
+        async function loadDashboardData() {
             try {
-                // Fetch unified analysis data
-                const data = await fetchData('unified_analysis?select=*&order=date.desc&limit=2000');
+                showError('');
                 
-                rawData = data.filter(d => d.stock_price !== null);
-                applyTimePeriod();
-                
-                document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+
+                // Fetch Tips daily data
+                const tipsDaily = await fetchSupabaseData('daily_label_totals', {
+                    'label': 'eq.Tips',
+                    'date': `gte.${startDate}`,
+                    'date': `lte.${endDate}`,
+                    'order': 'date.desc',
+                    'limit': 2000
+                });
+
+                // Fetch stock prices
+                const stockPrices = await fetchSupabaseData('stock_prices', {
+                    'symbol': 'eq.TIPSMUSIC',
+                    'date': `gte.${startDate}`,
+                    'date': `lte.${endDate}`,
+                    'order': 'date.desc',
+                    'limit': 2000
+                });
+
+                // Fetch monthly data
+                const monthlyData = await fetchSupabaseData('monthly_label_totals', {
+                    'label': 'eq.Tips',
+                    'order': 'month.desc',
+                    'limit': 24
+                });
+
+                dashboardData = {
+                    tipsDaily: tipsDaily.reverse(),
+                    stockPrices: stockPrices.reverse(),
+                    monthlyData: monthlyData.reverse()
+                };
+
+                updateDashboard();
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+
             } catch (error) {
-                console.error('Error loading data:', error);
-                alert('Error loading data. Please check console.');
+                console.error('Error loading dashboard data:', error);
+                showError('Failed to load data: ' + error.message);
             }
         }
 
-        function applyTimePeriod() {
-            const period = document.getElementById('timePeriod').value;
-            const now = new Date();
-            let cutoffDate;
-
-            if (period === 'all') {
-                filteredData = [...rawData];
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            if (message) {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
             } else {
-                const days = parseInt(period);
-                cutoffDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-                filteredData = rawData.filter(d => new Date(d.date) >= cutoffDate);
+                errorDiv.style.display = 'none';
             }
-
-            // Apply custom date filters if set
-            const fromDate = document.getElementById('fromDate').value;
-            const toDate = document.getElementById('toDate').value;
-
-            if (fromDate) {
-                filteredData = filteredData.filter(d => new Date(d.date) >= new Date(fromDate));
-            }
-            if (toDate) {
-                filteredData = filteredData.filter(d => new Date(d.date) <= new Date(toDate));
-            }
-
-            updateDashboard();
         }
 
         // ============================================================
-        // STATISTICS CALCULATION
+        // DASHBOARD UPDATES
         // ============================================================
-        function calculateMovingAverage(data, window) {
-            const result = [];
-            for (let i = 0; i < data.length; i++) {
-                if (i < window - 1) {
-                    result.push(null);
-                } else {
-                    const sum = data.slice(i - window + 1, i + 1).reduce((a, b) => a + b, 0);
-                    result.push(sum / window);
-                }
-            }
-            return result;
+
+        function updateDashboard() {
+            updateMetrics();
+            updateDailyViewsChart();
+            updateStockChart();
+            updateMonthlyGrowthChart();
+            updateComparisonChart();
+            updateDataTable();
         }
 
-        function updateStats() {
-            if (filteredData.length === 0) return;
+        function updateMetrics() {
+            const { tipsDaily, stockPrices } = dashboardData;
 
-            const latest = filteredData[0];
-            const previous = filteredData[1] || latest;
+            if (tipsDaily.length === 0) return;
+
+            const latest = tipsDaily[tipsDaily.length - 1];
+            const previous = tipsDaily.length > 1 ? tipsDaily[tipsDaily.length - 2] : latest;
 
             // Total Subscribers
-            document.getElementById('totalSubs').textContent = latest.tips_subscribers?.toLocaleString() || '--';
-            const subsChange = ((latest.tips_subscribers - previous.tips_subscribers) / previous.tips_subscribers * 100).toFixed(2);
-            document.getElementById('subsChange').innerHTML = `${subsChange > 0 ? '↑' : '↓'} ${Math.abs(subsChange)}% vs previous`;
+            document.getElementById('totalSubscribers').textContent = formatNumber(latest.total_subscribers);
+            const subsChange = latest.total_subscribers - previous.total_subscribers;
+            updateChangeElement('subscribersChange', subsChange);
 
             // Total Views
-            document.getElementById('totalViews').textContent = latest.tips_views?.toLocaleString() || '--';
-            const viewsChange = ((latest.tips_views - previous.tips_views) / previous.tips_views * 100).toFixed(2);
-            document.getElementById('viewsChange').innerHTML = `${viewsChange > 0 ? '↑' : '↓'} ${Math.abs(viewsChange)}% vs previous`;
+            document.getElementById('totalViews').textContent = formatNumber(latest.total_views);
+            const viewsChange = latest.total_views - previous.total_views;
+            updateChangeElement('viewsChange', viewsChange);
 
             // Daily Views
-            document.getElementById('dailyViews').textContent = latest.daily_views_change?.toLocaleString() || '--';
-            const dailyChange = latest.daily_views_change - (previous.daily_views_change || 0);
-            document.getElementById('dailyChange').innerHTML = `${dailyChange > 0 ? '↑' : '↓'} ${Math.abs(dailyChange).toLocaleString()} views`;
+            document.getElementById('dailyViews').textContent = formatNumber(latest.daily_views || 0);
+            const dailyChange = (latest.daily_views || 0) - (previous.daily_views || 0);
+            updateChangeElement('dailyViewsChange', dailyChange, true);
 
             // Stock Price
-            document.getElementById('stockPrice').textContent = `₹${latest.stock_price?.toFixed(2) || '--'}`;
-            const stockChange = ((latest.stock_price - previous.stock_price) / previous.stock_price * 100).toFixed(2);
-            document.getElementById('stockChange').innerHTML = `${stockChange > 0 ? '↑' : '↓'} ${Math.abs(stockChange)}% (₹${Math.abs(latest.stock_price - previous.stock_price).toFixed(2)})`;
+            if (stockPrices.length > 0) {
+                const latestStock = stockPrices[stockPrices.length - 1];
+                const previousStock = stockPrices.length > 1 ? stockPrices[stockPrices.length - 2] : latestStock;
+                
+                document.getElementById('stockPrice').textContent = `₹${latestStock.close.toFixed(2)}`;
+                const stockChange = latestStock.close - previousStock.close;
+                const stockChangePct = (stockChange / previousStock.close * 100).toFixed(2);
+                
+                const changeEl = document.getElementById('stockPriceChange');
+                changeEl.textContent = `${stockChange >= 0 ? '▲' : '▼'} ₹${Math.abs(stockChange).toFixed(2)} (${stockChangePct}%)`;
+                changeEl.className = 'metric-change ' + (stockChange >= 0 ? 'positive' : 'negative');
+            }
+        }
+
+        function updateChangeElement(elementId, change, isDaily = false) {
+            const element = document.getElementById(elementId);
+            const arrow = change >= 0 ? '▲' : '▼';
+            const className = change >= 0 ? 'positive' : 'negative';
+            
+            if (isDaily) {
+                element.textContent = `${arrow} ${formatNumber(Math.abs(change))} views`;
+            } else {
+                element.textContent = `${arrow} ${formatNumber(Math.abs(change))}`;
+            }
+            
+            element.className = 'metric-change ' + className;
         }
 
         // ============================================================
         // CHART UPDATES
         // ============================================================
-        function updateViewsChart() {
-            const dates = filteredData.map(d => d.date).reverse();
-            const views = filteredData.map(d => d.daily_views_change || 0).reverse();
+
+        function updateDailyViewsChart() {
+            const { tipsDaily } = dashboardData;
             
-            const traces = [{
-                x: dates,
-                y: views,
-                type: 'scatter',
-                mode: 'lines',
-                name: 'Daily Views',
-                line: { color: '#667eea', width: 2 }
+            const dates = tipsDaily.map(d => d.date);
+            const dailyViews = tipsDaily.map(d => d.daily_views || 0);
+
+            const datasets = [{
+                label: 'Daily Views',
+                data: dailyViews,
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                borderWidth: 2.5,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 5
             }];
 
-            if (document.getElementById('showViewsMA').checked) {
-                const ma7 = calculateMovingAverage(views, 7);
-                const ma30 = calculateMovingAverage(views, 30);
-                const ma45 = calculateMovingAverage(views, 45);
-
-                traces.push({
-                    x: dates,
-                    y: ma7,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: '7-Day MA',
-                    line: { color: '#ffa726', width: 2, dash: 'dot' }
-                });
-
-                traces.push({
-                    x: dates,
-                    y: ma30,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: '30-Day MA',
-                    line: { color: '#26a69a', width: 2, dash: 'dash' }
-                });
-
-                traces.push({
-                    x: dates,
-                    y: ma45,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: '45-Day MA',
-                    line: { color: '#ef5350', width: 2, dash: 'dashdot' }
-                });
+            if (chartSettings.dailyViewsShowMA) {
+                datasets.push(
+                    {
+                        label: '7-Day MA',
+                        data: calculateSMA(dailyViews, 7),
+                        borderColor: '#f59e0b',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        borderDash: [5, 5]
+                    },
+                    {
+                        label: '30-Day MA',
+                        data: calculateSMA(dailyViews, 30),
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        borderDash: [5, 5]
+                    },
+                    {
+                        label: '45-Day MA',
+                        data: calculateSMA(dailyViews, 45),
+                        borderColor: '#ef4444',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        borderDash: [5, 5]
+                    }
+                );
             }
 
-            const layout = {
-                title: '',
-                xaxis: { title: 'Date' },
-                yaxis: { title: 'Daily Views', type: viewsChartScale },
-                hovermode: 'x unified',
-                showlegend: true,
-                height: 450
-            };
+            if (charts.dailyViews) charts.dailyViews.destroy();
 
-            Plotly.newPlot('viewsChart', traces, layout, {responsive: true});
+            charts.dailyViews = new Chart(document.getElementById('dailyViewsChart'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: datasets
+                },
+                options: getChartOptions('Daily Views', chartSettings.dailyViewsScale)
+            });
         }
 
         function updateStockChart() {
-            const dates = filteredData.map(d => d.date).reverse();
-            const prices = filteredData.map(d => d.stock_price).reverse();
+            const { stockPrices } = dashboardData;
             
-            const traces = [{
-                x: dates,
-                y: prices,
-                type: 'scatter',
-                mode: 'lines',
-                name: 'Stock Price',
-                line: { color: '#764ba2', width: 2 }
+            const dates = stockPrices.map(d => d.date);
+            const closePrices = stockPrices.map(d => d.close);
+
+            const datasets = [{
+                label: 'Stock Price (₹)',
+                data: closePrices,
+                borderColor: '#764ba2',
+                backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                borderWidth: 2.5,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 5
             }];
 
-            if (document.getElementById('showStockMA').checked) {
-                const ma7 = calculateMovingAverage(prices, 7);
-                const ma30 = calculateMovingAverage(prices, 30);
-                const ma45 = calculateMovingAverage(prices, 45);
-
-                traces.push({
-                    x: dates,
-                    y: ma7,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: '7-Day MA',
-                    line: { color: '#ffa726', width: 2, dash: 'dot' }
-                });
-
-                traces.push({
-                    x: dates,
-                    y: ma30,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: '30-Day MA',
-                    line: { color: '#26a69a', width: 2, dash: 'dash' }
-                });
-
-                traces.push({
-                    x: dates,
-                    y: ma45,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: '45-Day MA',
-                    line: { color: '#ef5350', width: 2, dash: 'dashdot' }
-                });
+            if (chartSettings.stockShowMA) {
+                datasets.push(
+                    {
+                        label: '7-Day MA',
+                        data: calculateSMA(closePrices, 7),
+                        borderColor: '#f59e0b',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        borderDash: [5, 5]
+                    },
+                    {
+                        label: '30-Day MA',
+                        data: calculateSMA(closePrices, 30),
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        borderDash: [5, 5]
+                    },
+                    {
+                        label: '45-Day MA',
+                        data: calculateSMA(closePrices, 45),
+                        borderColor: '#ef4444',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        borderDash: [5, 5]
+                    }
+                );
             }
 
-            const layout = {
-                title: '',
-                xaxis: { title: 'Date' },
-                yaxis: { title: 'Stock Price (₹)', type: stockChartScale },
-                hovermode: 'x unified',
-                showlegend: true,
-                height: 450
-            };
+            if (charts.stock) charts.stock.destroy();
 
-            Plotly.newPlot('stockChart', traces, layout, {responsive: true});
-        }
-
-        function updateMonthlyChart() {
-            // Aggregate by month
-            const monthlyData = {};
-            filteredData.forEach(d => {
-                const month = d.date.substring(0, 7); // YYYY-MM
-                if (!monthlyData[month]) {
-                    monthlyData[month] = {
-                        views: 0,
-                        count: 0
-                    };
-                }
-                monthlyData[month].views += d.daily_views_change || 0;
-                monthlyData[month].count++;
+            charts.stock = new Chart(document.getElementById('stockChart'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: datasets
+                },
+                options: getChartOptions('Stock Price (₹)', chartSettings.stockScale)
             });
-
-            const months = Object.keys(monthlyData).sort();
-            const totalViews = months.map(m => monthlyData[m].views);
-            const avgDailyViews = months.map(m => monthlyData[m].views / monthlyData[m].count);
-
-            const traces = [
-                {
-                    x: months,
-                    y: totalViews,
-                    type: 'bar',
-                    name: 'Total Monthly Views',
-                    marker: { color: '#667eea' }
-                },
-                {
-                    x: months,
-                    y: avgDailyViews,
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    name: 'Avg Daily Views',
-                    yaxis: 'y2',
-                    line: { color: '#764ba2', width: 3 },
-                    marker: { size: 8 }
-                }
-            ];
-
-            const layout = {
-                title: '',
-                xaxis: { title: 'Month' },
-                yaxis: { title: 'Total Monthly Views' },
-                yaxis2: {
-                    title: 'Avg Daily Views',
-                    overlaying: 'y',
-                    side: 'right'
-                },
-                hovermode: 'x unified',
-                showlegend: true,
-                height: 450
-            };
-
-            Plotly.newPlot('monthlyChart', traces, layout, {responsive: true});
         }
 
-        function updateDualAxisChart() {
-            const dates = filteredData.map(d => d.date).reverse();
-            const views = filteredData.map(d => d.daily_views_change || 0).reverse();
-            const prices = filteredData.map(d => d.stock_price).reverse();
+        function updateMonthlyGrowthChart() {
+            const { monthlyData } = dashboardData;
             
-            const traces = [];
+            const months = monthlyData.map(d => d.month);
+            const growth = monthlyData.map(d => d.mom_views_growth_pct || 0);
 
-            // Raw Daily Views
-            if (document.getElementById('showDualRaw').checked) {
-                traces.push({
-                    x: dates,
-                    y: views,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Daily Views',
-                    line: { color: '#667eea', width: 2 },
-                    yaxis: 'y'
-                });
-            }
+            if (charts.monthlyGrowth) charts.monthlyGrowth.destroy();
 
-            // 30-Day MA for Views
-            if (document.getElementById('showDual30MA').checked) {
-                const ma30 = calculateMovingAverage(views, 30);
-                traces.push({
-                    x: dates,
-                    y: ma30,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Views 30-Day MA',
-                    line: { color: '#26a69a', width: 2, dash: 'dash' },
-                    yaxis: 'y'
-                });
-            }
-
-            // 45-Day MA for Views
-            if (document.getElementById('showDual45MA').checked) {
-                const ma45 = calculateMovingAverage(views, 45);
-                traces.push({
-                    x: dates,
-                    y: ma45,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Views 45-Day MA',
-                    line: { color: '#ef5350', width: 2, dash: 'dashdot' },
-                    yaxis: 'y'
-                });
-            }
-
-            // Stock Price (Always shown)
-            traces.push({
-                x: dates,
-                y: prices,
-                type: 'scatter',
-                mode: 'lines',
-                name: 'Stock Price',
-                line: { color: '#764ba2', width: 2 },
-                yaxis: 'y2'
+            charts.monthlyGrowth = new Chart(document.getElementById('monthlyGrowthChart'), {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Month-over-Month Views Growth (%)',
+                        data: growth,
+                        backgroundColor: growth.map(g => g >= 0 ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)'),
+                        borderColor: growth.map(g => g >= 0 ? '#10b981' : '#ef4444'),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Growth: ${context.parsed.y.toFixed(2)}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
             });
-
-            // Stock 45-Day MA
-            if (document.getElementById('showDualStock45MA').checked) {
-                const stockMA45 = calculateMovingAverage(prices, 45);
-                traces.push({
-                    x: dates,
-                    y: stockMA45,
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: 'Stock 45-Day MA',
-                    line: { color: '#ff6f00', width: 3, dash: 'dot' },
-                    yaxis: 'y2'
-                });
-            }
-
-            const layout = {
-                title: '',
-                xaxis: { title: 'Date' },
-                yaxis: {
-                    title: 'Daily Views',
-                    titlefont: { color: '#667eea' },
-                    tickfont: { color: '#667eea' }
-                },
-                yaxis2: {
-                    title: 'Stock Price (₹)',
-                    titlefont: { color: '#764ba2' },
-                    tickfont: { color: '#764ba2' },
-                    overlaying: 'y',
-                    side: 'right'
-                },
-                hovermode: 'x unified',
-                showlegend: true,
-                height: 500
-            };
-
-            Plotly.newPlot('dualAxisChart', traces, layout, {responsive: true});
         }
 
-        function updateTable() {
-            const tbody = document.getElementById('tableBody');
-            const startIdx = (currentPage - 1) * rowsPerPage;
-            const endIdx = startIdx + rowsPerPage;
-            const pageData = filteredData.slice(startIdx, endIdx);
+        function updateComparisonChart() {
+            const { tipsDaily, stockPrices } = dashboardData;
+            
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
 
+            const filteredDaily = tipsDaily.filter(d => {
+                const date = new Date(d.date);
+                return date >= startDate && date <= endDate;
+            });
+
+            const filteredStock = stockPrices.filter(s => {
+                const date = new Date(s.date);
+                return date >= startDate && date <= endDate && s.close > 0;
+            });
+
+            const dates = filteredDaily.map(d => d.date);
+            const dailyViews = filteredDaily.map(d => d.daily_views || 0);
+
+            let viewsData = dailyViews;
+            let viewsLabel = 'Daily Views';
+            let stockData = null;
+            let stockLabel = 'Stock Price (₹)';
+
+            // ✅ UPDATED: Handle different comparison modes
+            if (comparisonMode === 'ma30') {
+                viewsData = calculateSMA(dailyViews, 30);
+                viewsLabel = '30-Day MA (Daily Views)';
+            } else if (comparisonMode === 'ma45') {
+                viewsData = calculateSMA(dailyViews, 45);
+                viewsLabel = '45-Day MA (Daily Views)';
+            } else if (comparisonMode === 'stock45') {
+                // ✅ NEW: Show 45-DMA for stock price
+                const stockPriceData = dates.map(date => {
+                    const stock = filteredStock.find(s => s.date === date);
+                    return stock ? stock.close : null;
+                });
+                const stockPriceDataFilled = forwardFill(stockPriceData);
+                stockData = calculateSMA(stockPriceDataFilled, 45);
+                stockLabel = '45-Day MA (Stock Price ₹)';
+            }
+
+            // Forward-fill stock prices to remove gaps
+            const stockPriceData = dates.map(date => {
+                const stock = filteredStock.find(s => s.date === date);
+                return stock ? stock.close : null;
+            });
+
+            const stockPriceDataFilled = forwardFill(stockPriceData);
+
+            // Use calculated stock MA if in stock45 mode, otherwise use raw stock price
+            const finalStockData = comparisonMode === 'stock45' ? stockData : stockPriceDataFilled;
+
+            const primaryColor = '#667eea';
+            const secondaryColor = '#764ba2';
+            const gridColor = '#e9ecef';
+            const textColor = '#5a6c7d';
+
+            if (charts.comparison) charts.comparison.destroy();
+
+            charts.comparison = new Chart(document.getElementById('comparisonChart'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: viewsLabel,
+                            data: viewsData,
+                            borderColor: primaryColor,
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 2.5,
+                            tension: 0.4,
+                            yAxisID: 'y',
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            pointHoverBackgroundColor: primaryColor,
+                            pointHoverBorderColor: 'white',
+                            pointHoverBorderWidth: 2
+                        },
+                        {
+                            label: stockLabel,
+                            data: finalStockData,
+                            borderColor: secondaryColor,
+                            backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                            borderWidth: 2.5,
+                            tension: 0.4,
+                            yAxisID: 'y1',
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            pointHoverBackgroundColor: secondaryColor,
+                            pointHoverBorderColor: 'white',
+                            pointHoverBorderWidth: 2,
+                            spanGaps: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: {
+                                    size: 12,
+                                    weight: '600'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        if (context.datasetIndex === 0) {
+                                            label += formatNumber(context.parsed.y);
+                                        } else {
+                                            label += '₹' + context.parsed.y.toFixed(2);
+                                        }
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: gridColor,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: textColor,
+                                maxTicksLimit: 10
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: viewsLabel,
+                                color: primaryColor,
+                                font: {
+                                    weight: '600'
+                                }
+                            },
+                            grid: {
+                                color: gridColor,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: textColor,
+                                callback: function(value) {
+                                    return formatNumber(value);
+                                }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: stockLabel,
+                                color: secondaryColor,
+                                font: {
+                                    weight: '600'
+                                }
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: textColor,
+                                callback: function(value) {
+                                    return '₹' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============================================================
+        // CHART HELPERS
+        // ============================================================
+
+        function getChartOptions(yAxisLabel, scaleType = 'linear') {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 12,
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    y: {
+                        type: scaleType,
+                        beginAtZero: scaleType === 'linear',
+                        title: {
+                            display: true,
+                            text: yAxisLabel
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                if (yAxisLabel.includes('₹')) {
+                                    return '₹' + value.toFixed(0);
+                                }
+                                return formatNumber(value);
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        function calculateSMA(data, period) {
+            const result = [];
+            for (let i = 0; i < data.length; i++) {
+                if (i < period - 1) {
+                    result.push(null);
+                } else {
+                    const sum = data.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0);
+                    result.push(sum / period);
+                }
+            }
+            return result;
+        }
+
+        function forwardFill(data) {
+            const result = [...data];
+            let lastValue = null;
+            
+            for (let i = 0; i < result.length; i++) {
+                if (result[i] !== null) {
+                    lastValue = result[i];
+                } else if (lastValue !== null) {
+                    result[i] = lastValue;
+                }
+            }
+            
+            return result;
+        }
+
+        // ============================================================
+        // CHART TOGGLES
+        // ============================================================
+
+        function toggleDailyViewsScale(scale) {
+            chartSettings.dailyViewsScale = scale;
+            updateDailyViewsChart();
+
+            const container = document.getElementById('dailyViewsChart').closest('.chart-container');
+            container.querySelectorAll('.chart-toggle').forEach(btn => {
+                if (btn.textContent.includes('Linear') || btn.textContent.includes('Logarithmic')) {
+                    btn.classList.remove('active');
+                    if ((scale === 'linear' && btn.textContent.includes('Linear')) ||
+                        (scale === 'log' && btn.textContent.includes('Logarithmic'))) {
+                        btn.classList.add('active');
+                    }
+                }
+            });
+        }
+
+        function toggleStockScale(scale) {
+            chartSettings.stockScale = scale;
+            updateStockChart();
+
+            const container = document.getElementById('stockChart').closest('.chart-container');
+            container.querySelectorAll('.chart-toggle').forEach(btn => {
+                if (btn.textContent.includes('Linear') || btn.textContent.includes('Logarithmic')) {
+                    btn.classList.remove('active');
+                    if ((scale === 'linear' && btn.textContent.includes('Linear')) ||
+                        (scale === 'log' && btn.textContent.includes('Logarithmic'))) {
+                        btn.classList.add('active');
+                    }
+                }
+            });
+        }
+
+        function toggleDailyViewsMA() {
+            chartSettings.dailyViewsShowMA = !chartSettings.dailyViewsShowMA;
+            updateDailyViewsChart();
+
+            const container = document.getElementById('dailyViewsChart').closest('.chart-container');
+            const btn = Array.from(container.querySelectorAll('.chart-toggle')).find(b => b.textContent.includes('Show MA'));
+            if (btn) {
+                btn.classList.toggle('active');
+            }
+        }
+
+        function toggleStockMA() {
+            chartSettings.stockShowMA = !chartSettings.stockShowMA;
+            updateStockChart();
+
+            const container = document.getElementById('stockChart').closest('.chart-container');
+            const btn = Array.from(container.querySelectorAll('.chart-toggle')).find(b => b.textContent.includes('Show MA'));
+            if (btn) {
+                btn.classList.toggle('active');
+            }
+        }
+
+        function toggleComparisonMode(mode) {
+            comparisonMode = mode;
+            updateComparisonChart();
+
+            const container = document.getElementById('comparisonChart').closest('.chart-container');
+            container.querySelectorAll('.chart-toggle').forEach(btn => {
+                btn.classList.remove('active');
+                if ((mode === 'raw' && btn.textContent.includes('Raw')) ||
+                    (mode === 'ma30' && btn.textContent.includes('30-Day')) ||
+                    (mode === 'ma45' && btn.textContent.includes('45-Day') && !btn.textContent.includes('Stock')) ||
+                    (mode === 'stock45' && btn.textContent.includes('45-DMA Stock'))) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // ============================================================
+        // DATA TABLE
+        // ============================================================
+
+        function updateDataTable() {
+            const { tipsDaily, stockPrices } = dashboardData;
+            
+            const merged = tipsDaily.map(d => {
+                const stock = stockPrices.find(s => s.date === d.date);
+                return {
+                    date: d.date,
+                    dailyViews: d.daily_views || 0,
+                    stockPrice: stock ? stock.close : null
+                };
+            }).reverse();
+
+            renderTable(merged);
+        }
+
+        function renderTable(data) {
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const pageData = data.slice(start, end);
+
+            const tbody = document.getElementById('dataTableBody');
             tbody.innerHTML = '';
 
-            pageData.forEach((row, idx) => {
-                const prevRow = filteredData[startIdx + idx + 1];
-                const viewsChange = prevRow ? row.daily_views_change - prevRow.daily_views_change : 0;
-                const viewsChangePct = prevRow && prevRow.daily_views_change ? (viewsChange / prevRow.daily_views_change * 100).toFixed(2) : 0;
-                const stockChange = prevRow ? row.stock_price - prevRow.stock_price : 0;
+            pageData.forEach((row, index) => {
+                const prevRow = data[start + index + 1];
+                
+                const viewsChange = prevRow ? row.dailyViews - prevRow.dailyViews : 0;
+                const viewsChangePct = prevRow && prevRow.dailyViews ? (viewsChange / prevRow.dailyViews * 100).toFixed(2) : 0;
+                
+                const stockChange = prevRow && prevRow.stockPrice && row.stockPrice ? 
+                    row.stockPrice - prevRow.stockPrice : 0;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${row.date}</td>
-                    <td>${(row.daily_views_change || 0).toLocaleString()}</td>
-                    <td class="${viewsChange >= 0 ? 'positive' : 'negative'}">${viewsChange >= 0 ? '+' : ''}${viewsChange.toLocaleString()}</td>
-                    <td class="${viewsChangePct >= 0 ? 'positive' : 'negative'}">${viewsChangePct >= 0 ? '+' : ''}${viewsChangePct}%</td>
-                    <td>₹${row.stock_price?.toFixed(2) || '--'}</td>
-                    <td class="${stockChange >= 0 ? 'positive' : 'negative'}">${stockChange >= 0 ? '+' : ''}₹${stockChange.toFixed(2)}</td>
+                    <td>${formatNumber(row.dailyViews)}</td>
+                    <td class="${viewsChange >= 0 ? 'positive' : 'negative'}">${viewsChange >= 0 ? '▲' : '▼'} ${formatNumber(Math.abs(viewsChange))}</td>
+                    <td class="${viewsChangePct >= 0 ? 'positive' : 'negative'}">${viewsChangePct}%</td>
+                    <td>${row.stockPrice ? '₹' + row.stockPrice.toFixed(2) : 'N/A'}</td>
+                    <td class="${stockChange >= 0 ? 'positive' : 'negative'}">${row.stockPrice ? (stockChange >= 0 ? '▲' : '▼') + ' ₹' + Math.abs(stockChange).toFixed(2) : 'N/A'}</td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('pageInfo').textContent = 
-                `Showing ${startIdx + 1}-${Math.min(endIdx, filteredData.length)} of ${filteredData.length} records`;
-        }
+            document.getElementById('paginationInfo').textContent = 
+                `Showing ${start + 1}-${Math.min(end, data.length)} of ${data.length} records`;
 
-        // ============================================================
-        // UI CONTROLS
-        // ============================================================
-        function setViewsScale(scale) {
-            viewsChartScale = scale;
-            document.querySelectorAll('#viewsChart').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            updateViewsChart();
-        }
-
-        function setStockScale(scale) {
-            stockChartScale = scale;
-            document.querySelectorAll('#stockChart').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            updateStockChart();
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = end >= data.length;
         }
 
         function previousPage() {
             if (currentPage > 1) {
                 currentPage--;
-                updateTable();
+                updateDataTable();
             }
         }
 
         function nextPage() {
-            const maxPage = Math.ceil(filteredData.length / rowsPerPage);
-            if (currentPage < maxPage) {
-                currentPage++;
-                updateTable();
-            }
+            currentPage++;
+            updateDataTable();
         }
 
-        function updateDashboard() {
-            updateStats();
-            updateViewsChart();
-            updateStockChart();
-            updateMonthlyChart();
-            updateDualAxisChart();
-            updateTable();
+        // ============================================================
+        // DATE HANDLING
+        // ============================================================
+
+        function updateDateRange() {
+            const timeRange = document.getElementById('timeRange').value;
+            const endDate = new Date();
+            let startDate = new Date();
+
+            if (timeRange === 'all') {
+                startDate = new Date('2023-01-01');
+            } else {
+                startDate.setDate(endDate.getDate() - parseInt(timeRange));
+            }
+
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+
+            loadDashboardData();
+        }
+
+        // ============================================================
+        // UTILITIES
+        // ============================================================
+
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(2) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toFixed(0);
         }
 
         // ============================================================
         // INITIALIZATION
         // ============================================================
-        window.onload = function() {
-            // Set default dates
-            const toDate = new Date();
-            const fromDate = new Date(toDate.getTime() - 365 * 24 * 60 * 60 * 1000);
-            
-            document.getElementById('toDate').valueAsDate = toDate;
-            document.getElementById('fromDate').valueAsDate = fromDate;
 
-            loadData();
-        };
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateRange();
+        });
     </script>
 </body>
 </html>
